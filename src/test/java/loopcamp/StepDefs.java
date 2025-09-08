@@ -30,6 +30,7 @@ public class StepDefs {
 //        Driver.getDriver().findElement(By.cssSelector("input[aria-label^='Search']")).sendKeys(search + Keys.ENTER);
 //        Driver.getDriver().findElement(By.xpath("//*[@id='twotabsearchtextbox']")).sendKeys(search + Keys.ENTER);
         Driver.getDriver().findElement(By.xpath("//input[@name=\'_nkw\']")).sendKeys(search + Keys.ENTER);
+
     }
 
     @Then("^I should see the results$")

@@ -1,3 +1,4 @@
+
 package loopcamp;
 
 import io.cucumber.junit.Cucumber;
@@ -13,6 +14,6 @@ import org.junit.runner.RunWith;
                 "rerun:target/rerun.txt",},
         features = "src/test/resources/features",
         publish = true,
-        tags = "@smoke"
+        tags = "@regression or @smoke"
 )
 public class CukesRunner {}
