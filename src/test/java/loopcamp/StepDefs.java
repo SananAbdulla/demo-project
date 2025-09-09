@@ -6,10 +6,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.Assert;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.*;
 
 import java.util.concurrent.TimeUnit;
 
@@ -51,16 +48,32 @@ public class StepDefs {
     }
 
     @After
+//    public void tearDown(Scenario scenario) {
+//        if (scenario.isFailed()) {
+//            final byte[] screenshot = ((TakesScreenshot) Driver.getDriver()).getScreenshotAs(OutputType.BYTES);
+//            scenario.attach(screenshot, "image/png", scenario.getName());
+//        }
+//        Driver.closeDriver();
+
     public void tearDown(Scenario scenario) {
-        if (scenario.isFailed()) {
-            final byte[] screenshot = ((TakesScreenshot) Driver.getDriver()).getScreenshotAs(OutputType.BYTES);
-            scenario.attach(screenshot, "image/png", scenario.getName());
+        if (Driver.getDriver() != null) {
+            try {
+                if (scenario.isFailed()) {
+                    final byte[] screenshot = ((TakesScreenshot) Driver.getDriver())
+                            .getScreenshotAs(OutputType.BYTES);
+                    scenario.attach(screenshot, "image/png", "screenshot");
+                }
+            } catch (NoSuchSessionException e) {
+                System.out.println("⚠ Session already closed, skipping screenshot.");
+            } finally {
+                Driver.closeDriver();
+            }
         }
-        Driver.closeDriver();
-
-
-
-
     }
 
 }
+
+
+//    }
+//
+//}
