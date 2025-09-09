@@ -120,25 +120,25 @@ public class Driver {
                 /**
                  * These added because of EC@2 Jenkins on Linux was not running the ones above because of graphical issues.
                  */
-//                case "chrome-linux":
-//                    WebDriverManager.chromedriver().setup();
-//                    chromeOptions = new ChromeOptions();
-//                    chromeOptions.addArguments("--headless");
-//                    chromeOptions.addArguments("--no-sandbox");
-//                    chromeOptions.addArguments("--disable-dev-shm-usage");
-//                    driver = new ChromeDriver(chromeOptions);
-//                    break;
-
                 case "chrome-linux":
                     WebDriverManager.chromedriver().setup();
                     chromeOptions = new ChromeOptions();
-                    chromeOptions.addArguments("--headless"); // run without UI
-                    chromeOptions.addArguments("--no-sandbox"); // required on Linux
-                    chromeOptions.addArguments("--disable-dev-shm-usage"); // prevent crashes
-                    chromeOptions.addArguments("--disable-gpu"); // safer on headless servers
-                    chromeOptions.addArguments("--window-size=1920,1080"); // ensures full page rendering
+                    chromeOptions.addArguments("--headless");
+                    chromeOptions.addArguments("--no-sandbox");
+                    chromeOptions.addArguments("--disable-dev-shm-usage");
                     driver = new ChromeDriver(chromeOptions);
                     break;
+
+//                case "chrome-linux":
+//                    WebDriverManager.chromedriver().setup();
+//                    chromeOptions = new ChromeOptions();
+//                    chromeOptions.addArguments("--headless"); // run without UI
+//                    chromeOptions.addArguments("--no-sandbox"); // required on Linux
+//                    chromeOptions.addArguments("--disable-dev-shm-usage"); // prevent crashes
+//                    chromeOptions.addArguments("--disable-gpu"); // safer on headless servers
+//                    chromeOptions.addArguments("--window-size=1920,1080"); // ensures full page rendering
+//                    driver = new ChromeDriver(chromeOptions);
+//                    break;
 
                 case "remote-chrome-linux":
                     try {
