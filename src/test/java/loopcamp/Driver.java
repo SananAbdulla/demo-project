@@ -303,11 +303,11 @@ public class Driver {
 
                         WebDriverManager.chromedriver().setup();
                         chromeOptions = new ChromeOptions();
-                        chromeOptions.addArguments("--headless=new");
+                        chromeOptions.addArguments("--headless=new"); // more stable modern headless
                         chromeOptions.addArguments("--no-sandbox");
-                        chromeOptions.addArguments("--disable-dev-shm-usage");
+                        chromeOptions.addArguments("--disable-dev-shm-usage"); // avoids small /dev/shm
                         chromeOptions.addArguments("--disable-gpu");
-                        chromeOptions.addArguments("--window-size=1920,1080");
+                        chromeOptions.addArguments("--window-size=1920,1080"); // stable rendering
                         chromeOptions.addArguments("--remote-allow-origins=*");
                         driver = new ChromeDriver(chromeOptions);
                         break;

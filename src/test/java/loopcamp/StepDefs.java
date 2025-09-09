@@ -56,19 +56,24 @@ public class StepDefs {
 //        Driver.closeDriver();
 
     public void tearDown(Scenario scenario) {
-        if (Driver.getDriver() != null) {
-            try {
+        try {
+            WebDriver driver = Driver.getDriver();
+            if (driver != null) {
                 if (scenario.isFailed()) {
-                    final byte[] screenshot = ((TakesScreenshot) Driver.getDriver())
-                            .getScreenshotAs(OutputType.BYTES);
-                    scenario.attach(screenshot, "image/png", "screenshot");
+                    try {
+                        final byte[] screenshot = ((TakesScreenshot) driver)
+                                .getScreenshotAs(OutputType.BYTES);
+                        scenario.attach(screenshot, "image/png", "screenshot");
+                    } catch (WebDriverException e) {
+                        System.out.println("⚠ Could not take screenshot: " + e.getMessage());
+                    }
                 }
-            } catch (NoSuchSessionException e) {
-                System.out.println("⚠ Session already closed, skipping screenshot.");
-            } finally {
                 Driver.closeDriver();
             }
+        } catch (Exception e) {
+            System.out.println("⚠ TearDown failed: " + e.getMessage());
         }
+
     }
 
 }
