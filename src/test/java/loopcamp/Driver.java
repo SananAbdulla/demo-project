@@ -295,9 +295,20 @@ public class Driver {
                         break;
 
                     case "chrome-linux":
+//                        WebDriverManager.chromedriver().setup();
+//                        chromeOptions = new ChromeOptions();
+//                        chromeOptions.addArguments("--headless", "--no-sandbox", "--disable-dev-shm-usage");
+//                        driver = new ChromeDriver(chromeOptions);
+//                        break;
+
                         WebDriverManager.chromedriver().setup();
                         chromeOptions = new ChromeOptions();
-                        chromeOptions.addArguments("--headless", "--no-sandbox", "--disable-dev-shm-usage");
+                        chromeOptions.addArguments("--headless=new");
+                        chromeOptions.addArguments("--no-sandbox");
+                        chromeOptions.addArguments("--disable-dev-shm-usage");
+                        chromeOptions.addArguments("--disable-gpu");
+                        chromeOptions.addArguments("--window-size=1920,1080");
+                        chromeOptions.addArguments("--remote-allow-origins=*");
                         driver = new ChromeDriver(chromeOptions);
                         break;
 
@@ -319,11 +330,23 @@ public class Driver {
                         break;
 
                     default:
-                        // Fallback: Jenkins-safe headless Chrome
+//                        // Fallback: Jenkins-safe headless Chrome
+//                        System.out.println("⚠ Unknown browser: " + browser + " → Falling back to headless Chrome.");
+//                        WebDriverManager.chromedriver().setup();
+//                        ChromeOptions defaultOptions = new ChromeOptions();
+//                        defaultOptions.addArguments("--headless", "--no-sandbox", "--disable-dev-shm-usage");
+//                        driver = new ChromeDriver(defaultOptions);
+//                        break;
+
                         System.out.println("⚠ Unknown browser: " + browser + " → Falling back to headless Chrome.");
                         WebDriverManager.chromedriver().setup();
                         ChromeOptions defaultOptions = new ChromeOptions();
-                        defaultOptions.addArguments("--headless", "--no-sandbox", "--disable-dev-shm-usage");
+                        defaultOptions.addArguments("--headless=new");
+                        defaultOptions.addArguments("--no-sandbox");
+                        defaultOptions.addArguments("--disable-dev-shm-usage");
+                        defaultOptions.addArguments("--disable-gpu");
+                        defaultOptions.addArguments("--window-size=1920,1080");
+                        defaultOptions.addArguments("--remote-allow-origins=*");
                         driver = new ChromeDriver(defaultOptions);
                         break;
                 }
