@@ -30,11 +30,11 @@ public class Driver {
             try {
                 switch (browser) {
                     case "remote-chrome":
-                        driver = initRemoteDriver("54.226.36.175", "chrome");
+                        driver = initRemoteDriver("23.22.173.64", "chrome");
                         break;
 
                     case "remote-firefox":
-                        driver = initRemoteDriver("54.226.36.175", "firefox");
+                        driver = initRemoteDriver("23.22.173.64", "firefox");
                         break;
 
                     case "chrome":
