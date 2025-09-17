@@ -39,7 +39,7 @@ public class Driver {
                 case "remote-chrome":
                     try {
                         // assign your grid server address
-                        String gridAddress = "54.226.36.175";
+                        String gridAddress = "52.201.239.234";
                         URL url = new URL("http://" + gridAddress + ":4444/wd/hub");
                         desiredCapabilities = new DesiredCapabilities();
                         desiredCapabilities.setBrowserName("chrome");
@@ -52,7 +52,7 @@ public class Driver {
                 case "remote-firefox":
                     try {
                         // assign your grid server address
-                        String gridAddress = "54.226.36.175";
+                        String gridAddress = "52.201.239.234";
                         URL url = new URL("http://" + gridAddress + ":4444/wd/hub");
                         DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
                         desiredCapabilities.setBrowserName("firefox");
@@ -132,7 +132,7 @@ public class Driver {
                 case "remote-chrome-linux":
                     try {
                         // assign your grid server address
-                        String gridAddress = "34.227.172.25";
+                        String gridAddress = "52.201.239.234";
                         URL url = new URL("http://" + gridAddress + ":4444/wd/hub");
                         DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
                         chromeOptions = new ChromeOptions();
@@ -158,7 +158,7 @@ public class Driver {
                 case "remote-firefox-linux":
                     try {
                         // assign your grid server address
-                        String gridAddress = "34.227.172.25";
+                        String gridAddress = "52.201.239.234";
                         URL url = new URL("http://" + gridAddress + ":4444/wd/hub");
                         desiredCapabilities = new DesiredCapabilities();
                         desiredCapabilities.setBrowserName("firefox");
