@@ -7,7 +7,7 @@ Feature: The application should be running
     Then I should see the results
 
 
-  @regression
+  @regression @test1
   Scenario: another search
     Given I am on the home page
     When I search for "useless box"
