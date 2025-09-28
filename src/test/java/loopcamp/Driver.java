@@ -22,44 +22,18 @@ public class Driver {
     }
 
     private static WebDriver driver;
-    private static ChromeOptions chromeOptions;
-    private static FirefoxOptions firefoxOptions;
-
-    private static DesiredCapabilities desiredCapabilities;
 
     public static WebDriver getDriver() {
         if (driver == null) {
-            if (System.getProperty("BROWSER") == null) {
-                browser = ConfigurationReader.getProperty("browser");
-            } else {
-                browser = System.getProperty("BROWSER");
-            }
+            browser = System.getProperty("BROWSER") != null
+                    ? System.getProperty("BROWSER")
+                    : ConfigurationReader.getProperty("browser");
+
             System.out.println("Browser: " + browser);
+
             switch (browser) {
-                case "remote-chrome":
-                    try {
-                        String gridAddress = "100.26.201.67";
-                        URL url = new URL("http://" + gridAddress + ":4444/wd/hub");
-                        desiredCapabilities = new DesiredCapabilities();
-                        desiredCapabilities.setBrowserName("chrome");
-                        driver = new RemoteWebDriver(url, desiredCapabilities);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    break;
 
-                case "remote-firefox":
-                    try {
-                        String gridAddress = "100.26.201.67";
-                        URL url = new URL("http://" + gridAddress + ":4444/wd/hub");
-                        DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
-                        desiredCapabilities.setBrowserName("firefox");
-                        driver = new RemoteWebDriver(url, desiredCapabilities);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    break;
-
+                // ==================== Local Browsers ====================
                 case "chrome":
                     WebDriverManager.chromedriver().setup();
                     driver = new ChromeDriver();
@@ -67,13 +41,13 @@ public class Driver {
 
                 case "chrome-headless":
                     WebDriverManager.chromedriver().setup();
-                    ChromeOptions optionsHeadless = new ChromeOptions();
-                    optionsHeadless.addArguments("--headless");
-                    optionsHeadless.addArguments("--no-sandbox");
-                    optionsHeadless.addArguments("--disable-dev-shm-usage");
-                    optionsHeadless.addArguments("--disable-gpu");
-                    optionsHeadless.addArguments("--window-size=1920,1080");
-                    driver = new ChromeDriver(optionsHeadless);
+                    ChromeOptions chromeHeadless = new ChromeOptions();
+                    chromeHeadless.addArguments("--headless=new");
+                    chromeHeadless.addArguments("--disable-gpu");
+                    chromeHeadless.addArguments("--no-sandbox");
+                    chromeHeadless.addArguments("--disable-dev-shm-usage");
+                    chromeHeadless.addArguments("--remote-allow-origins=*");
+                    driver = new ChromeDriver(chromeHeadless);
                     break;
 
                 case "firefox":
@@ -83,14 +57,16 @@ public class Driver {
 
                 case "firefox-headless":
                     WebDriverManager.firefoxdriver().setup();
-                    FirefoxOptions options2 = new FirefoxOptions();
-                    options2.addArguments("--headless");
-                    driver = new FirefoxDriver(options2);
+                    FirefoxOptions firefoxHeadless = new FirefoxOptions();
+                    firefoxHeadless.addArguments("--headless");
+                    firefoxHeadless.addArguments("--disable-gpu");
+                    firefoxHeadless.addArguments("--no-sandbox");
+                    driver = new FirefoxDriver(firefoxHeadless);
                     break;
 
                 case "ie":
                     if (System.getProperty("os.name").toLowerCase().contains("mac")) {
-                        throw new WebDriverException("Your operating system does not support the requested browser");
+                        throw new WebDriverException("IE not supported on Mac");
                     }
                     WebDriverManager.iedriver().setup();
                     driver = new InternetExplorerDriver();
@@ -98,7 +74,7 @@ public class Driver {
 
                 case "edge":
                     if (System.getProperty("os.name").toLowerCase().contains("mac")) {
-                        throw new WebDriverException("Your operating system does not support the requested browser");
+                        throw new WebDriverException("Edge not supported on Mac");
                     }
                     WebDriverManager.edgedriver().setup();
                     driver = new EdgeDriver();
@@ -106,67 +82,85 @@ public class Driver {
 
                 case "safari":
                     if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-                        throw new WebDriverException("Your operating system does not support the requested browser");
+                        throw new WebDriverException("Safari not supported on Windows");
                     }
                     WebDriverManager.getInstance(SafariDriver.class).setup();
                     driver = new SafariDriver();
                     break;
 
-                // Linux specific cases for Jenkins CI environments
+                // ==================== Linux / Jenkins ====================
                 case "chrome-linux":
-                    WebDriverManager.chromedriver().setup();
-                    chromeOptions = new ChromeOptions();
-                    chromeOptions.addArguments("--headless");
-                    chromeOptions.addArguments("--no-sandbox");
-                    chromeOptions.addArguments("--disable-dev-shm-usage");
-                    chromeOptions.addArguments("--disable-gpu");
-                    chromeOptions.addArguments("--window-size=1920,1080");
-                    driver = new ChromeDriver(chromeOptions);
-                    break;
-
                 case "remote-chrome-linux":
-                    try {
-                        String gridAddress = "3.80.243.50";
-                        URL url = new URL("http://" + gridAddress + ":4444/wd/hub");
-                        DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
-                        chromeOptions = new ChromeOptions();
-                        chromeOptions.addArguments("--headless");
-                        chromeOptions.addArguments("--no-sandbox");
-                        chromeOptions.addArguments("--disable-dev-shm-usage");
-                        chromeOptions.addArguments("--disable-gpu");
-                        chromeOptions.addArguments("--window-size=1920,1080");
-                        desiredCapabilities.merge(chromeOptions);
-                        driver = new RemoteWebDriver(url, desiredCapabilities);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    WebDriverManager.chromedriver().setup();
+                    ChromeOptions linuxChrome = new ChromeOptions();
+                    linuxChrome.addArguments("--headless=new");
+                    linuxChrome.addArguments("--disable-gpu");
+                    linuxChrome.addArguments("--no-sandbox");
+                    linuxChrome.addArguments("--disable-dev-shm-usage");
+                    linuxChrome.addArguments("--remote-allow-origins=*");
+
+                    if (browser.startsWith("remote")) {
+                        try {
+                            String gridAddress = "3.80.243.50"; // your grid
+                            DesiredCapabilities capabilities = new DesiredCapabilities();
+                            capabilities.merge(linuxChrome);
+                            driver = new RemoteWebDriver(new URL("http://" + gridAddress + ":4444/wd/hub"), capabilities);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        driver = new ChromeDriver(linuxChrome);
                     }
                     break;
 
                 case "firefox-linux":
+                case "remote-firefox-linux":
                     WebDriverManager.firefoxdriver().setup();
-                    firefoxOptions = new FirefoxOptions();
-                    firefoxOptions.addArguments("--headless");
-                    firefoxOptions.addArguments("--disable-gpu");
-                    firefoxOptions.addArguments("--no-sandbox");
-                    driver = new FirefoxDriver(firefoxOptions);
+                    FirefoxOptions linuxFirefox = new FirefoxOptions();
+                    linuxFirefox.addArguments("--headless");
+                    linuxFirefox.addArguments("--disable-gpu");
+                    linuxFirefox.addArguments("--no-sandbox");
+
+                    if (browser.startsWith("remote")) {
+                        try {
+                            String gridAddress = "3.80.243.50"; // your grid
+                            DesiredCapabilities capabilities = new DesiredCapabilities();
+                            capabilities.setBrowserName("firefox");
+                            capabilities.merge(linuxFirefox);
+                            driver = new RemoteWebDriver(new URL("http://" + gridAddress + ":4444/wd/hub"), capabilities);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        driver = new FirefoxDriver(linuxFirefox);
+                    }
                     break;
 
-                case "remote-firefox-linux":
+                // ==================== Remote Selenium Grid ====================
+                case "remote-chrome":
                     try {
-                        String gridAddress = "3.80.243.50";
-                        URL url = new URL("http://" + gridAddress + ":4444/wd/hub");
-                        desiredCapabilities = new DesiredCapabilities();
-                        desiredCapabilities.setBrowserName("firefox");
-                        FirefoxOptions firefoxOptions = new FirefoxOptions();
-                        firefoxOptions.addArguments("--headless");
-                        firefoxOptions.addArguments("--disable-gpu");
-                        firefoxOptions.addArguments("--no-sandbox");
-                        desiredCapabilities.merge(firefoxOptions);
-                        driver = new RemoteWebDriver(url, desiredCapabilities);
+                        String gridAddress = "100.26.201.67";
+                        DesiredCapabilities capabilities = new DesiredCapabilities();
+                        capabilities.setBrowserName("chrome");
+                        driver = new RemoteWebDriver(new URL("http://" + gridAddress + ":4444/wd/hub"), capabilities);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                     break;
+
+                case "remote-firefox":
+                    try {
+                        String gridAddress = "100.26.201.67";
+                        DesiredCapabilities capabilities = new DesiredCapabilities();
+                        capabilities.setBrowserName("firefox");
+                        driver = new RemoteWebDriver(new URL("http://" + gridAddress + ":4444/wd/hub"), capabilities);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    break;
+
+                default:
+                    throw new RuntimeException("Unsupported browser: " + browser);
             }
         }
         return driver;
