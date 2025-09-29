@@ -1,7 +1,7 @@
 //---------------------------------THE FOLLOWING is BASED on WINDOWS - type sample script ----------------------------
 node {
     stage('Clone code') {
-        git 'https://github.com/feyruz-loopcamp/demo-project.git'
+        git 'https://github.com/SananAbdulla/demo-project.git'
     }
 
     stage('Run tests'){
@@ -38,7 +38,7 @@ pipeline {
 
         stage('Clone code') {
             steps{
-                git 'https://github.com/feyruz-loopcamp/demo-project.git'
+                git 'https://github.com/SananAbdulla/demo-project.git'
             }
         }
 
@@ -86,7 +86,7 @@ pipeline {
 
         stage('Clone code') {
             steps{
-                git 'https://github.com/feyruz-loopcamp/demo-project.git'
+                git 'https://github.com/SananAbdulla/demo-project.git'
             }
         }
 
