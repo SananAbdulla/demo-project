@@ -101,7 +101,7 @@ public class Driver {
 
                     if (browser.startsWith("remote")) {
                         try {
-                            String gridAddress = "3.80.243.50"; // your grid
+                            String gridAddress = "34.224.27.248"; // your grid
                             DesiredCapabilities capabilities = new DesiredCapabilities();
                             capabilities.merge(linuxChrome);
                             driver = new RemoteWebDriver(new URL("http://" + gridAddress + ":4444/wd/hub"), capabilities);
@@ -123,7 +123,7 @@ public class Driver {
 
                     if (browser.startsWith("remote")) {
                         try {
-                            String gridAddress = "3.80.243.50"; // your grid
+                            String gridAddress = "34.224.27.248"; // your grid
                             DesiredCapabilities capabilities = new DesiredCapabilities();
                             capabilities.setBrowserName("firefox");
                             capabilities.merge(linuxFirefox);
