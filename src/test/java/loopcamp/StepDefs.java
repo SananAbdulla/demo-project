@@ -38,16 +38,14 @@ public class StepDefs {
         Thread.sleep(2000);
 //        Assert.assertTrue(Driver.getDriver().findElement(By.cssSelector("span[class^='a-color-state']")).getText().contains("wooden loop"));
 //        Assert.assertTrue(Driver.getDriver().getCurrentUrl().contains("search"));
-        Assert.assertTrue(Driver.getDriver().findElement(By.xpath("(//h1[@class='srp-controls__count-heading']//span)[2]")).getText().contains("glass teapot"));
-    }
+        Assert.assertTrue(Driver.getDriver().findElement(By.xpath("//h1[contains(@class, 'srp-controls__count-heading')]")).getText().toLowerCase().contains("glass teapot"));    }
 
     @Then("^I should see more results$")
     public void i_should_see_more_results() throws Throwable {
         Thread.sleep(2000);
 //        Assert.assertTrue(Driver.getDriver().findElement(By.cssSelector("span[class^='a-color-state']")).getText().contains("useless box"));
 //        Assert.assertTrue(Driver.getDriver().getCurrentUrl().contains("search"));
-        Assert.assertTrue(Driver.getDriver().findElement(By.xpath("(//h1[@class='srp-controls__count-heading']//span)[2]")).getText().contains("useless box"));
-
+        Assert.assertTrue(Driver.getDriver().findElement(By.xpath("//h1[contains(@class, 'srp-controls__count-heading')]")).getText().toLowerCase().contains("useless box"));
     }
 
     @After
