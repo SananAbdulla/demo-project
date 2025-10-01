@@ -131,17 +131,20 @@ public class Driver {
 
                 case "remote-chrome-linux":
                     try {
-                        // assign your grid server address
                         String gridAddress = "54.90.108.72";
                         URL url = new URL("http://" + gridAddress + ":4444/wd/hub");
-                        DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
+
                         chromeOptions = new ChromeOptions();
-                        chromeOptions.addArguments("--headless");
+                        chromeOptions.addArguments("--headless=new"); // updated headless
                         chromeOptions.addArguments("--no-sandbox");
                         chromeOptions.addArguments("--disable-dev-shm-usage");
-                        desiredCapabilities.merge(chromeOptions);
-                        driver = new RemoteWebDriver(url, desiredCapabilities);
+                        chromeOptions.addArguments("--disable-gpu");
+                        chromeOptions.addArguments("--window-size=1920,1080");
+                        chromeOptions.setCapability("browserName", "chrome");
+
+                        driver = new RemoteWebDriver(url, chromeOptions);
                     } catch (Exception e) {
+                        System.err.println("Failed to create remote-chrome-linux session: " + e.getMessage());
                         e.printStackTrace();
                     }
                     break;
