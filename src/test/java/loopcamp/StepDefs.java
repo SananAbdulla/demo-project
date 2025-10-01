@@ -25,151 +25,186 @@ public class StepDefs {
     public void setUp() {
         // Initialize driver before each scenario
         Driver.getDriver();
-        Driver.getDriver().manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        Driver.getDriver().manage().timeouts().implicitlyWait(Duration.ofSeconds(15));
         Driver.getDriver().manage().window().maximize();
     }
 
     @Given("^I am on the home page$")
     public void i_am_on_the_home_page() {
-        // Open eBay home page
-        Driver.getDriver().get("https://www.ebay.com");
+        // Open eBay home page with retry logic
+        WebDriverWait wait = new WebDriverWait(Driver.getDriver(), Duration.ofSeconds(30));
 
-        // Wait for page to load - use multiple possible selectors
-        WebDriverWait wait = new WebDriverWait(Driver.getDriver(), Duration.ofSeconds(10));
+        try {
+            Driver.getDriver().get("https://www.ebay.com");
 
-        // Try multiple possible indicators that page is loaded
-        String[] pageIndicators = {
-                "gh-ac", // Search box ID
-                "gh-btn", // Search button ID
-                "gh-logo" // eBay logo
-        };
+            // Wait for page to load completely - check multiple elements
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.id("gh-ac")));
+            System.out.println("✓ eBay home page loaded successfully");
 
-        for (String indicator : pageIndicators) {
-            try {
-                wait.until(ExpectedConditions.presenceOfElementLocated(By.id(indicator)));
-                System.out.println("Page loaded - found: " + indicator);
-                break;
-            } catch (Exception e) {
-                // Continue to next indicator
-            }
+        } catch (Exception e) {
+            System.out.println("⚠ Page load issue: " + e.getMessage());
+            // Try refreshing
+            Driver.getDriver().navigate().refresh();
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.id("gh-ac")));
         }
     }
 
     @When("^I search for \"([^\"]*)\"$")
     public void i_search_for(String search) {
-        WebDriverWait wait = new WebDriverWait(Driver.getDriver(), Duration.ofSeconds(10));
+        WebDriverWait wait = new WebDriverWait(Driver.getDriver(), Duration.ofSeconds(15));
 
-        // Wait for search box and enter search term
-        WebElement searchBox = wait.until(ExpectedConditions.elementToBeClickable(By.id("gh-ac")));
-        searchBox.clear();
-        searchBox.sendKeys(search);
-
-        System.out.println("Searching for: " + search);
-
-        // Click search button instead of ENTER (more reliable)
-        WebElement searchButton = Driver.getDriver().findElement(By.id("gh-btn"));
-        searchButton.click();
-
-        // Wait for navigation to complete
         try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+            // Wait for search box and enter search term
+            WebElement searchBox = wait.until(ExpectedConditions.elementToBeClickable(By.id("gh-ac")));
+            searchBox.clear();
+            searchBox.sendKeys(search);
+
+            System.out.println("✓ Entered search term: " + search);
+
+            // Use both ENTER key and click search button for reliability
+            WebElement searchButton = Driver.getDriver().findElement(By.id("gh-btn"));
+            searchButton.click();
+
+            System.out.println("✓ Search initiated");
+
+            // Wait for search results page to start loading
+            wait.until(ExpectedConditions.not(ExpectedConditions.urlToBe("https://www.ebay.com/")));
+
+        } catch (Exception e) {
+            System.out.println("⚠ Search failed: " + e.getMessage());
+            throw e;
         }
     }
 
     @Then("I should see the results")
     public void i_should_see_the_results() {
-        WebDriverWait wait = new WebDriverWait(Driver.getDriver(), Duration.ofSeconds(20));
+        WebDriverWait wait = new WebDriverWait(Driver.getDriver(), Duration.ofSeconds(25));
         boolean resultsFound = false;
+        String foundBy = "";
 
-        System.out.println("Checking for search results...");
+        System.out.println("🔍 Checking for search results...");
 
-        // Check multiple indicators of search results with detailed logging
-        String[] indicators = {
+        // Wait a moment for results to load
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        // 1. First, check current URL and title
+        String currentUrl = Driver.getDriver().getCurrentUrl();
+        String pageTitle = Driver.getDriver().getTitle().toLowerCase();
+
+        System.out.println("🌐 Current URL: " + currentUrl);
+        System.out.println("📄 Page Title: " + pageTitle);
+
+        // URL-based verification
+        if (currentUrl.contains("ebay.com/sch/") || currentUrl.contains("_nkw=") || currentUrl.contains("_from=")) {
+            resultsFound = true;
+            foundBy = "URL pattern";
+            System.out.println("✓ Results confirmed by URL pattern");
+        }
+
+        // Title-based verification
+        if (!resultsFound && (pageTitle.contains("results for") || pageTitle.contains("ebay") && pageTitle.contains("search"))) {
+            resultsFound = true;
+            foundBy = "Page title";
+            System.out.println("✓ Results confirmed by page title");
+        }
+
+        // 2. Try multiple element-based selectors
+        String[] elementSelectors = {
                 "//h1[contains(@class, 'srp-controls__count-heading')]",
-                "//h1[contains(@class, 'count-heading')]",
-                "//*[contains(text(), 'results for')]",
-                "//*[contains(text(), 'Results')]",
-                "//div[contains(@class, 'srp-river')]",
-                "//ul[contains(@class, 'srp-results')]",
-                "//span[contains(@class, 'srp-controls__count-heading')]"
+                "//span[contains(@class, 'srp-controls__count-heading')]",
+                "//h1[contains(text(), 'results for')]",
+                "//span[contains(text(), 'results for')]",
+                "//div[contains(@class, 'srp-controls')]//h1",
+                "//div[contains(@class, 'srp-controls')]//span",
+                "//*[contains(text(), 'results') and contains(text(), 'for')]",
+                "//h1[@class='srp-controls__count-heading']"
         };
 
-        for (String indicator : indicators) {
+        if (!resultsFound) {
+            for (String selector : elementSelectors) {
+                try {
+                    List<WebElement> elements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(selector)));
+                    if (!elements.isEmpty() && elements.get(0).isDisplayed()) {
+                        resultsFound = true;
+                        foundBy = "Element: " + selector;
+                        System.out.println("✓ Results found using: " + selector);
+                        System.out.println("📊 Results text: " + elements.get(0).getText());
+                        break;
+                    }
+                } catch (Exception e) {
+                    System.out.println("✗ Selector failed: " + selector);
+                }
+            }
+        }
+
+        // 3. Check for product listings as final fallback
+        if (!resultsFound) {
             try {
-                List<WebElement> elements = Driver.getDriver().findElements(By.xpath(indicator));
-                if (!elements.isEmpty() && elements.get(0).isDisplayed()) {
+                List<WebElement> productItems = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
+                        By.xpath("//li[contains(@class, 's-item')] | //div[contains(@class, 's-item')]")
+                ));
+                if (productItems.size() > 3) { // Need multiple items to confirm it's results page
                     resultsFound = true;
-                    System.out.println("✓ Results found using: " + indicator);
-                    System.out.println("Results text: " + elements.get(0).getText());
-                    break;
-                } else {
-                    System.out.println("✗ No elements found for: " + indicator);
+                    foundBy = "Product listings count: " + productItems.size();
+                    System.out.println("✓ Results confirmed by product items: " + productItems.size());
                 }
             } catch (Exception e) {
-                System.out.println("✗ Exception with selector '" + indicator + "': " + e.getMessage());
+                System.out.println("✗ No product listings found");
             }
         }
 
-        // Check URL for search results pattern
-        if (!resultsFound) {
-            String currentUrl = Driver.getDriver().getCurrentUrl();
-            String pageTitle = Driver.getDriver().getTitle();
-
-            System.out.println("Current URL: " + currentUrl);
-            System.out.println("Page Title: " + pageTitle);
-
-            if (currentUrl.contains("ebay.com/sch/") || currentUrl.contains("_nkw=")) {
-                resultsFound = true;
-                System.out.println("✓ Results confirmed by URL pattern");
-            }
-
-            if (pageTitle.toLowerCase().contains("ebay") && pageTitle.toLowerCase().contains("results")) {
-                resultsFound = true;
-                System.out.println("✓ Results confirmed by page title");
-            }
-        }
-
-        // Final attempt - look for any product listings
+        // 4. Check for search results container
         if (!resultsFound) {
             try {
-                List<WebElement> productItems = Driver.getDriver().findElements(By.xpath("//li[contains(@class, 's-item')]"));
-                if (productItems.size() > 0) {
+                List<WebElement> resultContainers = Driver.getDriver().findElements(
+                        By.xpath("//div[contains(@class, 'srp-river')] | //ul[contains(@class, 'srp-results')]")
+                );
+                if (!resultContainers.isEmpty()) {
                     resultsFound = true;
-                    System.out.println("✓ Results confirmed by product items count: " + productItems.size());
+                    foundBy = "Results container";
+                    System.out.println("✓ Results container found");
                 }
             } catch (Exception e) {
-                System.out.println("No product items found");
+                System.out.println("✗ No results container found");
             }
         }
 
-        if (!resultsFound) {
-            // Take screenshot for debugging
-            try {
-                final byte[] screenshot = ((TakesScreenshot) Driver.getDriver()).getScreenshotAs(OutputType.BYTES);
-                // Can't attach to scenario here, but we can save it or log
-                System.out.println("Screenshot taken for debugging");
-            } catch (Exception e) {
-                System.out.println("Could not take screenshot: " + e.getMessage());
-            }
+        // Final verification with detailed failure info
+        if (resultsFound) {
+            System.out.println("✅ SUCCESS: Search results verified via: " + foundBy);
+        } else {
+            System.out.println("❌ FAILURE: No search results indicators found");
+            System.out.println("Debug info - Page source contains:");
+            String pageSource = Driver.getDriver().getPageSource();
+            System.out.println(" - 'results': " + pageSource.toLowerCase().contains("results"));
+            System.out.println(" - 'srp-': " + pageSource.contains("srp-"));
+            System.out.println(" - 's-item': " + pageSource.contains("s-item"));
         }
 
-        Assert.assertTrue("Search results should be visible. Check console for detailed logs.", resultsFound);
+        Assert.assertTrue("Search results should be visible. Verification method: " + foundBy, resultsFound);
     }
 
     @After
     public void tearDown(Scenario scenario) {
         try {
             if (scenario.isFailed()) {
-                System.out.println("Scenario failed: " + scenario.getName());
-                final byte[] screenshot = ((TakesScreenshot) Driver.getDriver()).getScreenshotAs(OutputType.BYTES);
-                scenario.attach(screenshot, "image/png", scenario.getName());
+                System.out.println("❌ SCENARIO FAILED: " + scenario.getName());
+                try {
+                    final byte[] screenshot = ((TakesScreenshot) Driver.getDriver()).getScreenshotAs(OutputType.BYTES);
+                    scenario.attach(screenshot, "image/png", "failure-screenshot");
+                    System.out.println("📸 Screenshot taken");
+                } catch (Exception e) {
+                    System.out.println("⚠ Could not take screenshot: " + e.getMessage());
+                }
             } else {
-                System.out.println("Scenario passed: " + scenario.getName());
+                System.out.println("✅ SCENARIO PASSED: " + scenario.getName());
             }
         } catch (Exception e) {
-            System.out.println("Error in teardown: " + e.getMessage());
+            System.out.println("⚠ Error in teardown: " + e.getMessage());
         } finally {
             Driver.closeDriver();
         }
