@@ -18,7 +18,7 @@ public class StepDefs {
 
     @Given("^I am on the home page$")
     public void i_am_on_the_home_page() throws Throwable {
-        Driver.getDriver().manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+        Driver.getDriver().manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
         Driver.getDriver().manage().window().maximize();
 //        Driver.getDriver().get("https://www.etsy.com");
 //        Driver.getDriver().get("http://www.amazon.com");
@@ -34,7 +34,7 @@ public class StepDefs {
 
     @Then("^I should see the results$")
     public void i_should_see_the_results() throws Throwable {
-        Thread.sleep(2000);
+        Thread.sleep(15000);
 //        Assert.assertTrue(Driver.getDriver().findElement(By.cssSelector("span[class^='a-color-state']")).getText().contains("wooden loop"));
 //        Assert.assertTrue(Driver.getDriver().getCurrentUrl().contains("search"));
         Assert.assertTrue(Driver.getDriver().findElement(By.xpath("(//h1[@class='srp-controls__count-heading']//span)[2]")).getText().contains("glass teapot"));
@@ -42,7 +42,7 @@ public class StepDefs {
 
     @Then("^I should see more results$")
     public void i_should_see_more_results() throws Throwable {
-        Thread.sleep(2000);
+        Thread.sleep(15000);
 //        Assert.assertTrue(Driver.getDriver().findElement(By.cssSelector("span[class^='a-color-state']")).getText().contains("useless box"));
 //        Assert.assertTrue(Driver.getDriver().getCurrentUrl().contains("search"));
         Assert.assertTrue(Driver.getDriver().findElement(By.xpath("(//h1[@class='srp-controls__count-heading']//span)[2]")).getText().contains("useless box"));
