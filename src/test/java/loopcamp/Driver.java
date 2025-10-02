@@ -131,17 +131,20 @@ public class Driver {
 
                 case "remote-chrome-linux":
                     try {
+                        // assign your grid server address
                         String gridAddress = "34.229.219.164";
                         URL url = new URL("http://" + gridAddress + ":4444/wd/hub");
-                        ChromeOptions chromeOptions = new ChromeOptions();
-                        chromeOptions.addArguments("--headless", "--no-sandbox", "--disable-dev-shm-usage");
-                        driver = new RemoteWebDriver(url, chromeOptions);
+                        DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
+                        chromeOptions = new ChromeOptions();
+                        chromeOptions.addArguments("--headless");
+                        chromeOptions.addArguments("--no-sandbox");
+                        chromeOptions.addArguments("--disable-dev-shm-usage");
+                        desiredCapabilities.merge(chromeOptions);
+                        driver = new RemoteWebDriver(url, desiredCapabilities);
                     } catch (Exception e) {
                         e.printStackTrace();
-                        driver = null;
                     }
                     break;
-
 
                 case "firefox-linux":
                     WebDriverManager.firefoxdriver().setup();
